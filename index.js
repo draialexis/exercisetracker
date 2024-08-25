@@ -1,18 +1,28 @@
-const express = require('express')
-const app = express()
-const cors = require('cors')
-require('dotenv').config()
+require('dotenv').config();
+const express = require('express');
+const cors = require('cors');
+const bodyParser = require('body-parser');
 
-app.use(cors())
-app.use(express.static('public'))
-app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/views/index.html')
+const app = express();
+const port = process.env.PORT || 3000;
+
+require('./config/database');
+
+app.use(cors());
+app.use(bodyParser.urlencoded({ extended: true }));
+app.use(bodyParser.json());
+app.use('/public', express.static(`${process.cwd()}/public`));
+
+const userRoutes = require('./routes/userRoutes');
+const exerciseRoutes = require('./routes/exerciseRoutes');
+
+app.use('/api', userRoutes);
+app.use('/api', exerciseRoutes);
+
+app.get('/', function(req, res) {
+  res.sendFile(process.cwd() + '/views/index.html');
 });
 
-
-
-
-
-const listener = app.listen(process.env.PORT || 3000, () => {
-  console.log('Your app is listening on port ' + listener.address().port)
-})
+app.listen(port, function() {
+  console.log(`Listening on port ${port}`);
+});
